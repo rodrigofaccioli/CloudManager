@@ -1,0 +1,14 @@
+In this directory contains all scripts for running Molecular Dynamics. 
+It must requires Gromacs instalation: http://www.gromacs.org/
+
+Molecular Dynamics are used in several kind of scenarios. 
+Each scenario is assigned a specific folder and they are described below:
+
+* refinament
+      Molecular Dynamics are employed to refine a number of protein structures. 
+
+* initial_individual
+	Molecular Dynamics are employed to generate initial population.
+
+* minimization
+	Steep algorithm to minimize all pdb files in directory.

@@ -1,0 +1,12 @@
+Here contains scripts to run virtual screening in cloud enviroment
+It must requires to install drugdesign project that can be access: https://github.com/rodrigofaccioli/drugdesign
+Basically, this project assumes client-server enviroment. Therefore, one machine is server and it sends to all 
+described machines at nodefile, the required files to perform virtual screening based on drugdesign project.
+
+* vs_run.sh 
+It is the main script of virtual screening
+
+* gather.sh 
+Collect all files that were participated in virtual screening
+
+
