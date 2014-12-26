@@ -5,8 +5,8 @@
 nodefile=$1
 path_of_pdbqt_ligands=$2
 path_of_pdbqt_receptors=$3
-path_of_config_vs=$4
-path_of_config_vina=$5
+config_vs=$4
+config_vina=$5
 path_execution_node_node=$6
 path_drugdesign=$7
 
@@ -64,6 +64,8 @@ while [ $node -le $total_nodes ]; do
 		scp "$name" "$node_name":$path_receptor_node
 		let n_node=$n_node+1	
 	done
+	scp "$config_vs" "$node_name":$path_execution_node
+	scp "$config_vina" "$node_name":$path_execution_node
 
 	nohup ssh "$node_name" "cd ""$path_execution_node"" ; python ""$path_execution_node""vs_main.py "> /dev/null 2>&1&
 
