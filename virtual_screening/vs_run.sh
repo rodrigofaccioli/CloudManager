@@ -1,14 +1,17 @@
-#!/bin/bash
+#!/bin/bash -x
 
-#All paths must require the termination /  
-#Example: ./vs_run.sh /home/faccioli/Execute/docking/virtual_screening/3u1i_complexo/nodefile /home/faccioli/Execute/docking/virtual_screening/ligand/pdbqt/ /home/faccioli/Execute/docking/virtual_screening/3u1i_complexo/receptor/pdbqt/ /home/faccioli/Execute/docking/virtual_screening/3u1i_complexo/config.ini /home/faccioli/Execute/docking/virtual_screening/3u1i_complexo/config_complexo_dm.txt /disco1/execute/vs_3u1i_complexo_dm/ /root/programs/drugdesign/virtualscreening/
+#Important 1: All paths must require the termination /  
+#Important 2: Create a directory that contains all files
+#Example: run_vs is the diretory that contains all files. These files will be copied to all nodes
+# ./vs_run.sh nodefile /disco1/execute/run_vs/nubbe/pdbqt/ /disco1/execute/run_vs/receptor/pdbqt/ config_complexo_dm.txt config.ini /disco1/execute/vs_3u1i_complexo_dm/ /root/programs/drugdesign/virtualscreening/
+
 nodefile=$1
 path_of_pdbqt_ligands=$2
 path_of_pdbqt_receptors=$3
 config_vs=$4
 config_vina=$5
-path_execution_node_node=$6
-path_drugdesign=$7
+path_execution_node=$6
+path_drugdesign_vs_main=$7
 
 here=$(pwd)
 
@@ -51,23 +54,26 @@ while [ $node -le $total_nodes ]; do
 	#creating execution directory in node
 	ssh "$node_name" mkdir -p "$path_execution_node"
 	#coping the ligands to node
-	path_ligand_node="$path_execution_node""ligand"
-	ssh "$node_name" mkdir -p $path_ligand_node
-	scp "$path_of_pdbqt_ligands"* "$node_name":$path_ligand_node
+	path_ligand_node=$path_execution_node"ligand/"
+	ssh $node_name mkdir -p $path_ligand_node
+        all_ligands_source=$path_of_pdbqt_ligands"*"
+	scp $all_ligands_source $node_name:$path_ligand_node
 	#coping the receptors that will be ran in node
-	path_receptor_node="$path_execution_node""receptor"
-	ssh "$node_name" mkdir -p $path_receptor_node
-	total_receptors=$(wc -l "execution_list_""$node_name" | awk '{print $1}')
-	n_node=1
-	while [ $n_node -le $total_receptors ]; do
-		name="$(head -n $n "execution_list_""$node_name" | tail -n 1 | sed 's/.pdbqt//g')"
-		scp "$name" "$node_name":$path_receptor_node
-		let n_node=$n_node+1	
+	path_receptor_node="$path_execution_node""receptor/"
+	ssh $node_name mkdir -p $path_receptor_node
+	total_receptors_node=$(wc -l "execution_list_""$node_name" | awk '{print $1}')
+        exec_list_name="execution_list_""$node_name"
+	n_recptors=1
+	while [ $n_recptors -le $total_receptors_node ]; do
+		name=$(head $n "$exec_list_name" | tail -n 1)
+                recep_path_filename=$path_of_pdbqt_receptors$name
+		scp $recep_path_filename $node_name:$path_receptor_node
+		let n_recptors=$n_recptors+1	
 	done
-	scp "$config_vs" "$node_name":$path_execution_node
-	scp "$config_vina" "$node_name":$path_execution_node
+	scp $config_vs $node_name:$path_execution_node
+	scp $config_vina $node_name:$path_execution_node
 
-	nohup ssh "$node_name" "cd ""$path_execution_node"" ; python ""$path_execution_node""vs_main.py "> /dev/null 2>&1&
+	nohup ssh "$node_name" "cd ""$path_execution_node"" ; python ""$path_drugdesign_vs_main""vs_main.py "> /dev/null 2>&1&
 
 	let node=$node+1
 done
