@@ -65,8 +65,8 @@ while [ $node -le $total_nodes ]; do
         exec_list_name="execution_list_""$node_name"
 	n_recptors=1
 	while [ $n_recptors -le $total_receptors_node ]; do
-		name=$(head $n "$exec_list_name" | tail -n 1)
-                recep_path_filename=$path_of_pdbqt_receptors$name
+		name=$(head -n $n_recptors "$exec_list_name" | tail -n 1 )
+        recep_path_filename=$path_of_pdbqt_receptors$name
 		scp $recep_path_filename $node_name:$path_receptor_node
 		let n_recptors=$n_recptors+1	
 	done
